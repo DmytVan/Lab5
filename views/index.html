@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .weather {
+            display: block;
+        }
+
+        .weather div {
+            display: inline-block;
+            margin: 10px;
+            border: 1px solid #32a8ff;
+            border-radius: 10px;
+            padding-right: 10px;
+            background-color: rgba(117, 190, 218, 0.3);
+            cursor: pointer;
+        }
+
+        .weather div img {
+            float: left;
+            margin: 10px;
+            height: 50px;
+        }
+
+        .weather div strong {
+            float: left;
+            margin-top: 10px;
+            font-size: 85%;
+            font-weight: bold;
+            color: #333;
+            font-family: sans-serif;
+            line-height: 25px;
+        }
+
+        .weather div p {
+            font-size: 120%;
+            font-weight: bold;
+            color: #333;
+            font-family: sans-serif;
+            line-height: 25px;
+        }
+
+        .astronomy {
+            font-size: 120%;
+            display: block;
+            margin-top: 10px;
+            font-weight: normal;
+        }
+
+        .leftWeather {
+            display: inline-block;
+            width: 20%;
+
+        }
+
+        .hourWeather {
+            background-color: rgba(168, 218, 110, 0.3);
+            width: 100%;
+        }
+
+        .divHourWeather div {
+            display: inline-block;
+            width: 120px;
+            font-size: 120%;
+            height: 30px;
+        }
+        @media (max-width: 1100px) {
+            .divHourWeather div {
+                display: inline-block;
+                width: 70px;
+                font-size: 80%;
+                height: 30px;
+
+            }
+            .divHourWeather img {
+                height: 20px;
+            }
+        }
+        @media (max-width: 650px) {
+            .divHourWeather div {
+                display: inline-block;
+                width: 60px;
+                font-size: 80%;
+                height: 30px;
+
+            }
+            .divHourWeather img {
+                height: 20px;
+            }
+        }
+        @media (max-width: 560px) {
+            .divHourWeather div {
+                display: inline-block;
+                width: 50px;
+                font-size: 80%;
+                height: 30px;
+
+            }
+            .divHourWeather img {
+                height: 20px;
+            }
+        }
+        @media (max-width: 560px) {
+            .divHourWeather div {
+                display: inline-block;
+                width: 40px;
+                font-size: 80%;
+                height: 30px;
+
+            }
+            .divHourWeather img {
+                height: 20px;
+            }
+        }
+
+        .mainHour {
+            display: inline-block;
+        }
+
+    </style>
+</head>
+<body>
+<div class='weather'></div>
+<div class="hourWeather"></div>
+<script>
+
+    function weather() {
+
+
+        let curentT = 20;
+
+        function loadWeater() {
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('GET', 'weather.json', true);
+
+            xhr.send();
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState !== 4) return;
+
+                if (xhr.status !== 200) {
+                    alert(xhr.status + ': ' + xhr.statusText);
+                } else {
+                    try {
+                        const weather = JSON.parse(xhr.responseText);
+                        showWeather(weather)
+                        console.log('Количество обновлений: '  + weather.updates);
+                        console.log('Последнее обновление: '  + weather.lastUpdate);
+                    } catch (e) {
+                        alert("Некорректный ответ " + e.message);
+                    }
+
+                }
+
+            }
+        }
+
+        function showWeather(weather) {
+            const divWeather = document.getElementsByClassName('weather')[0];
+            const curentTemp = document.createElement('p');
+            const span = document.createElement('span');
+            span.textContent = 'Odessa';
+            curentTemp.appendChild(span);
+            curentTemp.textContent += '  Now: ' + curentT + '°';
+            curentTemp.style.fontWeight = 'bold';
+            divWeather.appendChild(curentTemp)
+            for (var key in weather) {
+                if (typeof weather[key] !== "object") continue;
+                var div = document.createElement('div');
+                const img = document.createElement('img');
+                const dateP = document.createElement('strong');
+                const tempMax = document.createElement('p');
+                img.src = weather[key].hourly[1500].weatherIconUrl;
+                dateP.textContent = key.split('-').splice(1).reverse().join('.');
+                tempMax.textContent = weather[key].temp_C + '°';
+                div.appendChild(img);
+                div.appendChild(dateP);
+                div.appendChild(tempMax);
+                divWeather.appendChild(div);
+                div.addEventListener('click', showHourWeather.bind(null, event, weather[key]));
+            }
+
+        }
+
+        function showHourWeather(event, weather) {
+            console.log(weather);
+            const deleteDiv = document.getElementsByClassName('leftWeather')[0];
+            if (deleteDiv)
+            deleteDiv.parentNode.removeChild(deleteDiv);
+            const deleteDiv2 = document.getElementsByClassName('mainHour')[0];
+            if(deleteDiv2)
+            deleteDiv2.parentNode.removeChild(deleteDiv2);
+            const hourWeather = document.getElementsByClassName('hourWeather')[0];
+            const div = document.createElement('div');
+            div.classList.add('leftWeather');
+            const img = document.createElement('img');
+            img.src = weather.hourly[1500].weatherIconUrl;
+            img.height = 60;
+            div.appendChild(img);
+            const p = document.createElement('strong');
+            p.textContent = 'temperature: ' + weather.temp_C;
+            p.classList.add('astronomy');
+            div.appendChild(p);
+            for (var key in weather.astronomy) {
+                const p = document.createElement('strong');
+                p.textContent = key + ': ' + weather.astronomy[key];
+                p.classList.add('astronomy');
+                div.appendChild(p);
+            }
+
+            hourWeather.appendChild(div);
+
+            const mainDiv = document.createElement('div');
+            mainDiv.classList.add('mainHour')
+
+            const arr = ['', 'Temperature', 'Rain(%)'];
+
+            for (var i = 0; i < arr.length; i++) {
+                const wrap = document.createElement('div');
+                wrap.classList.add('divHourWeather');
+                const div = document.createElement('div');
+                div.textContent = arr[i];
+                wrap.appendChild(div);
+
+                for (var key in weather.hourly) {
+                    const divTime = document.createElement('div');
+                    if (i === 0) {
+                        const p = document.createElement('p');
+                        p.style.textAlign = 'center';
+                        p.textContent = +key / 100 + ':00';
+                        divTime.appendChild(p);
+                        const img = document.createElement('img');
+                        img.src = weather.hourly[key].weatherIconUrl;
+                        divTime.appendChild(img);
+                        const weatherDesc = document.createElement('p');
+                        weatherDesc.textContent = weather.hourly[key].weatherDesc;
+                        weatherDesc.style.fontSize = '70%';
+                        divTime.appendChild(weatherDesc);
+                    }
+                    if (i === 1) {
+                        const p = document.createElement('p');
+                        p.textContent = weather.hourly[key].tempC + '°C';
+                        divTime.appendChild(p);
+                    }
+                    if (i === 2) {
+                        const p = document.createElement('p');
+                        p.textContent = weather.hourly[key].chanceofrain;
+                        divTime.appendChild(p);
+                    }
+                    wrap.appendChild(divTime);
+                }
+                mainDiv.appendChild(wrap);
+            }
+
+            hourWeather.appendChild(mainDiv);
+
+
+        }
+
+
+        function getCurrentT() {
+            var xhr = new XMLHttpRequest();
+
+
+            xhr.open('GET', 'https://api.worldweatheronline.com/premium/v1/weather.ashx?key=606e7602fa92492fbc8122243192805&q=Odessa,Ukraine&num_of_days=5&tp=3&format=json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState != 4) return;
+                if (xhr.status != 200) {
+                    console.log(123)
+                    alert(xhr.status + ': ' + xhr.responseXML);
+                } else {
+                    curentT = JSON.parse(xhr.response).data.current_condition[0].temp_C;
+                    loadWeater();
+                }
+
+            };
+
+            xhr.send();
+
+
+        }
+
+
+        getCurrentT();
+    }
+
+
+    weather();
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

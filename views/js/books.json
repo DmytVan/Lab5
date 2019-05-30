@@ -1,0 +1,14 @@
+[
+  {
+    "name" : "Book1",
+    "author": "author1",
+    "year": 2000,
+    "cost": 120
+  },
+  {
+    "name" : "Book2",
+    "author": "author2",
+    "year": 2000,
+    "cost": 120
+  }
+]
